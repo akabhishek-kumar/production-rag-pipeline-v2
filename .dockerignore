@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+*.pyo
+.env
+chroma_db
+bm25_index.pkl
+.git
+.github
+tests/
+*.md
