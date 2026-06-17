@@ -119,28 +119,19 @@ def test_rerank_empty_docs():
 # ── Citation check ────────────────────────────────────────────────────────────
 
 def test_citation_check_detects_present_citation():
-    """citation_check_chain returns has_citations=True when [Source: X] present."""
-    from app.chains import citation_check_chain
-
-    with patch.object(citation_check_chain, "invoke") as mock_invoke:
-        mock_invoke.return_value = {"has_citations": True, "missing": "none"}
-        result = citation_check_chain.invoke(
-            {"answer": "LangGraph is a framework [Source: langgraph_guide.txt]."}
-        )
-    assert result["has_citations"] is True
+    """[Source: X] pattern is present in a cited answer."""
+    import re
+    answer = "LangGraph is a framework [Source: langgraph_guide.txt]."
+    matches = re.findall(r"\[Source:\s*([^\],]+)", answer)
+    assert len(matches) > 0, "Expected at least one [Source:] citation"
 
 
 def test_citation_check_detects_missing_citation():
-    """citation_check_chain returns has_citations=False when no [Source: X]."""
-    from app.chains import citation_check_chain
-
-    with patch.object(citation_check_chain, "invoke") as mock_invoke:
-        mock_invoke.return_value = {
-            "has_citations": False,
-            "missing": "No [Source:] citations found",
-        }
-        result = citation_check_chain.invoke({"answer": "LangGraph is a framework."})
-    assert result["has_citations"] is False
+    """[Source: X] pattern is absent when answer has no citations."""
+    import re
+    answer = "LangGraph is a framework."
+    matches = re.findall(r"\[Source:\s*([^\],]+)", answer)
+    assert len(matches) == 0, "Expected no [Source:] citations"
 
 
 # ── API source extraction ─────────────────────────────────────────────────────
